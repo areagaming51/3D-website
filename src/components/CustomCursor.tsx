@@ -19,22 +19,16 @@ export default function CustomCursor() {
     gsap.set(cursorRef.current, { x: window.innerWidth / 2, y: window.innerHeight / 2 });
     gsap.set(followerRef.current, { x: window.innerWidth / 2, y: window.innerHeight / 2 });
 
-    const onMouseMove = (e: MouseEvent) => {
-      // Small dot follows instantly
-      gsap.to(cursorRef.current, {
-        x: e.clientX,
-        y: e.clientY,
-        duration: 0.1,
-        ease: "power2.out",
-      });
+    const xTo = gsap.quickTo(cursorRef.current, "x", { duration: 0.1, ease: "power2.out" });
+    const yTo = gsap.quickTo(cursorRef.current, "y", { duration: 0.1, ease: "power2.out" });
+    const xFollowerTo = gsap.quickTo(followerRef.current, "x", { duration: 0.6, ease: "power3.out" });
+    const yFollowerTo = gsap.quickTo(followerRef.current, "y", { duration: 0.6, ease: "power3.out" });
 
-      // Ring follows with slight elastic delay
-      gsap.to(followerRef.current, {
-        x: e.clientX,
-        y: e.clientY,
-        duration: 0.8,
-        ease: "power3.out",
-      });
+    const onMouseMove = (e: MouseEvent) => {
+      xTo(e.clientX);
+      yTo(e.clientY);
+      xFollowerTo(e.clientX);
+      yFollowerTo(e.clientY);
     };
 
     const attachHoverStates = () => {
@@ -48,12 +42,12 @@ export default function CustomCursor() {
     window.addEventListener("mousemove", onMouseMove);
     attachHoverStates();
 
-    // Hide system cursor globally
-    document.body.style.cursor = "none";
+    // RESTORE SYSTEM CURSOR to avoid "I can't see my mouse" issues
+    document.body.style.cursor = "auto";
     
     // Auto-hide the cursor elements when leaving the window
-    const onMouseOut = () => {
-        if(cursorRef.current && followerRef.current){
+    const onMouseOut = (e: MouseEvent) => {
+        if (!e.relatedTarget && cursorRef.current && followerRef.current) {
             cursorRef.current.style.opacity = '0';
             followerRef.current.style.opacity = '0';
         }
@@ -83,7 +77,7 @@ export default function CustomCursor() {
       document.removeEventListener("mouseout", onMouseOut);
       document.removeEventListener("mouseenter", onMouseEnterWindow);
       observer.disconnect();
-      document.body.style.cursor = "auto"; // Restore system cursor on unmount
+      document.body.style.cursor = "auto"; 
     };
   }, []);
 

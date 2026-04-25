@@ -13,19 +13,20 @@ function Loader() {
 
 function TorchLight() {
   const lightRef = useRef<THREE.SpotLight>(null);
+  const xTo = useRef<Function>(null);
+  const yTo = useRef<Function>(null);
+
+  useEffect(() => {
+    if (lightRef.current) {
+      xTo.current = gsap.quickTo(lightRef.current.position, "x", { duration: 1, ease: "power2.out" });
+      yTo.current = gsap.quickTo(lightRef.current.position, "y", { duration: 1, ease: "power2.out" });
+    }
+  }, []);
   
   useFrame((state) => {
-    if (!lightRef.current) return;
-    // Map mouse (-1 to +1) to spotlight position, with some limits
-    const targetX = state.pointer.x * 8;
-    const targetY = state.pointer.y * 8 + 5; // offset lightly above
-    
-    gsap.to(lightRef.current.position, {
-      x: targetX,
-      y: targetY,
-      duration: 1.5,
-      ease: "power2.out"
-    });
+    if (!xTo.current || !yTo.current) return;
+    xTo.current(state.pointer.x * 8);
+    yTo.current(state.pointer.y * 8 + 5);
   });
 
   return (

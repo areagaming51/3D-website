@@ -21,7 +21,11 @@ export default function FrameScroller() {
     const images: HTMLImageElement[] = [];
     let loadedCount = 0;
 
+    let lastFrame = -1;
     const render = (renderIndex: number) => {
+      if (renderIndex === lastFrame) return;
+      lastFrame = renderIndex;
+      
       const img = images[renderIndex];
       if (img && img.complete) {
         // Simple letterbox/cover drawing to maintain aspect
